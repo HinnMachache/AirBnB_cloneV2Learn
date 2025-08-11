@@ -18,6 +18,14 @@ class DBStorage():
     """ DBStorage Class"""
     __engine = None
     __session = None
+    __models = {
+        "User": User,
+        "State": State,
+        "City": City,
+        "Amenity": Amenity,
+        "Place": Place,
+        "Review": Review
+    }
 
     def __init__(self):
         """ Database Constructor"""
@@ -44,14 +52,14 @@ class DBStorage():
         session = self.__session
 
         if not cls:
-            tables = [User, Place, City, State, Amenity, Review]
+            classes_to_query = self.__models.values()
         else:
-            if type(cls) == str:
-                cls = eval(cls)
-                tables = [cls]
+            if isinstance(cls, str):
+                cls = self.__models.get(cls)
+                classes_to_query = [cls] if cls else []
 
-        for table in tables:
-            instances = session.query(table).all()
+        for model in classes_to_query:
+            instances = session.query(model).all()
 
             for instance in instances:
                 key = f"{type(instance).__name__}.{instance.id}"
